@@ -13,10 +13,15 @@ const app = express();
  * JSON
  * FORM DATA
  */
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+/**
+ * Routes
+ */
+const router = require("./src/routes/Router.js");
+
+app.use(router);
 app.listen(port, () => {
   console.log(`App rodando na porta: ${port}`);
 });
