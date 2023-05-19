@@ -6,7 +6,7 @@
   "repository": "https://github.com/dfsilva-dxp/devgram-api",
   "author": "Daniel Silva",
   "scripts": {
-    "server": "nodemon ./app.js"
+    "server": "nodemon ./src/main.js"
   },
   "license": "MIT",
   "private": false,
