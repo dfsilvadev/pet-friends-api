@@ -3,6 +3,9 @@ const router = express();
 
 const { register } = require("../controllers/User");
 
-router.post("/register", register);
+const validate = require("../middlewares/handleValidation");
+const { validateUserCreation } = require("../middlewares/userValidation");
+
+router.post("/register", validateUserCreation(), validate, register);
 
 module.exports = router;
