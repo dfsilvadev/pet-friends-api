@@ -14,28 +14,61 @@ const generateToken = (id) => {
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
-  const salt = await bcrypt.genSalt();
-  const encryptedPassword = await bcrypt.hash(password, salt);
-
   const userEmail = await User.findOne({ email });
+  const user = await getUserData(name, email, password);
 
-  if (!checkEmail(req, res, userEmail)) return;
+  if (!checkEmail(res, userEmail)) return;
 
-  const newUser = await User.create({
-    name,
-    email,
-    password: encryptedPassword,
-  });
-
-  if (!checkNewUser(req, res, newUser)) return;
+  if (!checkNewUser(res, user)) return;
 
   res.status(201).json({
-    _id: newUser._id,
-    token: generateToken(newUser._id),
+    _id: user._id,
+    name: user.name,
+    token: generateToken(user._id),
   });
 };
 
-function checkEmail(req, res, email) {
+const login = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  const userEmail = await User.findOne({ email });
+  const user = await getUserData(name, email, password);
+
+  if (!checkLoggedInUser(res, userEmail)) return;
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(422).json({
+      errors: ["Senha inválida."],
+    });
+    return;
+  }
+
+  res.status(201).json({
+    _id: user._id,
+    name: user.name,
+    avatar_url: user.avatar_url,
+    token: generateToken(user._id),
+  });
+};
+
+module.exports = {
+  register,
+  login,
+};
+
+async function getUserData(name, email, password, avatar_url, bio) {
+  const salt = await bcrypt.genSalt();
+  const encryptedPassword = await bcrypt.hash(password, salt);
+
+  return await User.create({
+    name,
+    email,
+    password: encryptedPassword,
+    avatar_url,
+    bio,
+  });
+}
+function checkEmail(res, email) {
   if (email) {
     res.status(422).json({
       errors: ["E-mail já cadastrado. Por favor, utilize outro e-mail"],
@@ -46,7 +79,7 @@ function checkEmail(req, res, email) {
   return true;
 }
 
-function checkNewUser(req, res, newUser) {
+function checkNewUser(res, newUser) {
   if (!newUser) {
     res.status(422).json({
       errors: [
@@ -59,6 +92,13 @@ function checkNewUser(req, res, newUser) {
   return true;
 }
 
-module.exports = {
-  register,
-};
+function checkLoggedInUser(res, userEmail) {
+  if (!userEmail) {
+    res.status(404).json({
+      errors: ["Usuário não encontrado."],
+    });
+    return false;
+  }
+
+  return true;
+}
