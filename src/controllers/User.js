@@ -14,8 +14,15 @@ const generateToken = (id) => {
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
+  const salt = await bcrypt.genSalt();
+  const encryptedPassword = await bcrypt.hash(password, salt);
+
   const userEmail = await User.findOne({ email });
-  const user = await getUserData(name, email, password);
+  const user = await User.create({
+    name,
+    email,
+    password: encryptedPassword,
+  });
 
   if (!checkEmail(res, userEmail)) return;
 
@@ -29,12 +36,11 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
-  const userEmail = await User.findOne({ email });
-  const user = await getUserData(name, email, password);
+  const user = await User.findOne({ email });
 
-  if (!checkLoggedInUser(res, userEmail)) return;
+  if (!checkLoggedInUser(res, user)) return;
 
   if (!(await bcrypt.compare(password, user.password))) {
     res.status(422).json({
