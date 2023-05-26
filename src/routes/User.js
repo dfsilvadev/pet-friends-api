@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express();
 
-const { login, register } = require("../controllers/User");
+const { login, register, getCurrentUser } = require("../controllers/User");
 
 const validate = require("../middlewares/handleValidation");
+const authGuard = require("../middlewares/authGuard");
+
 const {
   loginValidation,
   validateUserCreation,
@@ -11,5 +13,6 @@ const {
 
 router.post("/register", validateUserCreation(), validate, register);
 router.post("/login", loginValidation(), validate, login);
+router.get("/profile", authGuard, getCurrentUser);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const User = require("../models/User");
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { response } = require("../routes/User");
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -57,9 +58,16 @@ const login = async (req, res) => {
   });
 };
 
+const getCurrentUser = (req, res) => {
+  const user = req.user;
+
+  res.status(200).json(user);
+};
+
 module.exports = {
   register,
   login,
+  getCurrentUser,
 };
 
 async function getUserData(name, email, password, avatar_url, bio) {
