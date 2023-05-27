@@ -2,7 +2,7 @@ const User = require("../models/User");
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { response } = require("../routes/User");
+const { ObjectId } = require("mongoose").Types;
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -53,7 +53,7 @@ const login = async (req, res) => {
   res.status(201).json({
     _id: user._id,
     name: user.name,
-    avatar_url: user.avatar_url,
+    profileImage: user.profileImage,
     token: generateToken(user._id),
   });
 };
@@ -64,13 +64,46 @@ const getCurrentUser = (req, res) => {
   res.status(200).json(user);
 };
 
-module.exports = {
-  register,
-  login,
-  getCurrentUser,
+const update = async (req, res) => {
+  const { name, password, bio } = req.body;
+
+  let profileImage = null;
+
+  if (req.file) {
+    profileImage = req.file.filename;
+  }
+
+  const reqUser = req.user;
+  const user = await User.findById({ _id: new ObjectId(reqUser._id) }).select(
+    "-password"
+  );
+
+  if (name) user.name = name;
+
+  if (profileImage) user.profileImage = profileImage;
+
+  if (bio) user.bio = bio;
+
+  if (password) {
+    const salt = await bcrypt.genSalt();
+    const encryptedPassword = await bcrypt.hash(password, salt);
+
+    user.password = encryptedPassword;
+  }
+
+  await user.save();
+
+  res.status(200).json(user);
 };
 
-async function getUserData(name, email, password, avatar_url, bio) {
+module.exports = {
+  getCurrentUser,
+  login,
+  register,
+  update,
+};
+
+async function getUserData(name, email, password, profileImage, bio) {
   const salt = await bcrypt.genSalt();
   const encryptedPassword = await bcrypt.hash(password, salt);
 
@@ -78,7 +111,7 @@ async function getUserData(name, email, password, avatar_url, bio) {
     name,
     email,
     password: encryptedPassword,
-    avatar_url,
+    profileImage,
     bio,
   });
 }

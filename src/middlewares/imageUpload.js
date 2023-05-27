@@ -11,7 +11,7 @@ const imageStorage = multer.diskStorage({
       folder = "photos";
     }
 
-    callback(null, `uploads/${folder}`);
+    callback(null, `src/uploads/${folder}`);
   },
   filename: (req, file, callback) => {
     callback(null, Date.now() + path.extname(file.originalname));
@@ -21,7 +21,7 @@ const imageStorage = multer.diskStorage({
 const imageUpload = multer({
   storage: imageStorage,
   fileFilter(res, file, callback) {
-    if (!file.originalname.match(/\.(png|jpg)$/)) {
+    if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
       return callback(new Error("As imagens devem ser no formato png ou jpg."));
     }
     callback(undefined, true);
