@@ -1,6 +1,7 @@
 const User = require("../models/User");
 
 const bcrypt = require("bcryptjs");
+const { request } = require("express");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
 
@@ -96,25 +97,32 @@ const update = async (req, res) => {
   res.status(200).json(user);
 };
 
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById({ _id: new ObjectId(id) }).select(
+      "-password"
+    );
+
+    if (!user) {
+      return res.status(404).json({ errors: ["Usuário não encontrado!"] });
+    }
+
+    res.status(200).json(user);
+  } catch {
+    return res.status(404).json({ errors: ["Usuário não encontrado!"] });
+  }
+};
+
 module.exports = {
   getCurrentUser,
+  getUserById,
   login,
   register,
   update,
 };
 
-async function getUserData(name, email, password, profileImage, bio) {
-  const salt = await bcrypt.genSalt();
-  const encryptedPassword = await bcrypt.hash(password, salt);
-
-  return await User.create({
-    name,
-    email,
-    password: encryptedPassword,
-    profileImage,
-    bio,
-  });
-}
 function checkEmail(res, email) {
   if (email) {
     res.status(422).json({
