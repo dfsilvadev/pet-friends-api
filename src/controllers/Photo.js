@@ -1,7 +1,8 @@
+const { response } = require("express");
 const Photo = require("../models/Photo");
 const User = require("../models/User");
 
-const mongoose = require("mongoose");
+const { ObjectId } = require("mongoose").Types;
 
 const insertPhoto = async (req, res) => {
   const { title } = req.body;
@@ -26,6 +27,37 @@ const insertPhoto = async (req, res) => {
   res.status(200).json(newPhoto);
 };
 
+const deletePhoto = async (req, res) => {
+  const { id } = req.params;
+
+  const reqUser = req.user;
+
+  try {
+    const photo = await Photo.findById({ _id: new ObjectId(id) });
+
+    if (!photo)
+      return res.status(404).json({
+        errors: ["Foto não encontrada."],
+      });
+
+    if (!photo.userId.equals(reqUser._id))
+      return res.status(422).json({
+        errors: ["Erro ao deletar a foto. Por favor, tente mais tarde!"],
+      });
+
+    await Photo.findByIdAndDelete(photo._id);
+
+    res
+      .status(200)
+      .json({ id: photo._id, message: "Foto excluída com sucesso!" });
+  } catch {
+    res.status(404).json({
+      errors: ["Foto não encontrada."],
+    });
+  }
+};
+
 module.exports = {
   insertPhoto,
+  deletePhoto,
 };
