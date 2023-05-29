@@ -132,17 +132,22 @@ const likePhoto = async (req, res) => {
       errors: ["Foto não encontrada."],
     });
 
-  if (photo.likes.includes(reqUser._id))
-    return res.status(422).json({
-      errors: ["Você já curtiu a foto."],
-    });
+  if (photo.likes.includes(reqUser._id)) {
+    const index = photo.likes.indexOf(reqUser._id);
+    photo.likes.splice(index, 1);
+    photo.save();
+
+    return res
+      .status(200)
+      .json({ photoId: id, userId: reqUser.id, message: "Foto descurtida!" });
+  }
 
   photo.likes.push(reqUser._id);
   photo.save();
 
   res
     .status(200)
-    .json({ photoId: id, userId: reqUser.id, message: "Você curtiu a foto." });
+    .json({ photoId: id, userId: reqUser.id, message: "Foto curtida!" });
 };
 
 module.exports = {
