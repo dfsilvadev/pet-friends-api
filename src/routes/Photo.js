@@ -5,6 +5,8 @@ const {
   insertPhoto,
   deletePhoto,
   getAllPhotos,
+  getUserPhotos,
+  getPhotoById,
 } = require("../controllers/Photo");
 
 const validate = require("../middlewares/handleValidation");
@@ -23,5 +25,7 @@ router.post(
 );
 router.delete("/:id", authGuard, deletePhoto);
 router.get("/", getAllPhotos);
+router.get("/user/:id", authGuard, getUserPhotos);
+router.get("/:id", authGuard, getPhotoById);
 
 module.exports = router;
