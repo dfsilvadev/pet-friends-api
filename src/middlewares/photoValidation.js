@@ -32,7 +32,17 @@ const photoUpdateValidation = () => {
   ];
 };
 
+const commentValidation = () => {
+  return [
+    body("comment")
+      .isString()
+      .withMessage("O comentário é obrigatório.")
+      .isLength({ min: 3 })
+      .withMessage("O comentário precisa ter no mínimo 3 caracteres."),
+  ];
+};
 module.exports = {
   photoInsertValidation,
   photoUpdateValidation,
+  commentValidation,
 };
