@@ -4,6 +4,7 @@ const router = express();
 const {
   login,
   getCurrentUser,
+  getUserById,
   register,
   update,
 } = require("../controllers/User");
@@ -29,5 +30,7 @@ router.put(
   imageUpload.single("profileImage"),
   update
 );
+
+router.get("/:id", getUserById);
 
 module.exports = router;
