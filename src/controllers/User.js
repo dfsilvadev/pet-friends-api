@@ -2,6 +2,7 @@ const User = require("../models/User");
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongoose").Types;
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -18,24 +19,103 @@ const register = async (req, res) => {
   const encryptedPassword = await bcrypt.hash(password, salt);
 
   const userEmail = await User.findOne({ email });
-
-  if (!checkEmail(req, res, userEmail)) return;
-
-  const newUser = await User.create({
+  const user = await User.create({
     name,
     email,
     password: encryptedPassword,
   });
 
-  if (!checkNewUser(req, res, newUser)) return;
+  if (!checkEmail(res, userEmail)) return;
+
+  if (!checkNewUser(res, user)) return;
 
   res.status(201).json({
-    _id: newUser._id,
-    token: generateToken(newUser._id),
+    _id: user._id,
+    name: user.name,
+    token: generateToken(user._id),
   });
 };
 
-function checkEmail(req, res, email) {
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!checkLoggedInUser(res, user)) return;
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(422).json({
+      errors: ["Senha inválida."],
+    });
+    return;
+  }
+
+  res.status(201).json({
+    _id: user._id,
+    name: user.name,
+    profileImage: user.profileImage,
+    token: generateToken(user._id),
+  });
+};
+
+const getCurrentUser = (req, res) => {
+  const user = req.user;
+
+  res.status(200).json(user);
+};
+
+const update = async (req, res) => {
+  const { name, password, bio } = req.body;
+
+  let profileImage = null;
+
+  if (req.file) {
+    profileImage = req.file.filename;
+  }
+
+  const reqUser = req.user;
+  const user = await User.findById({ _id: new ObjectId(reqUser._id) }).select(
+    "-password"
+  );
+
+  if (name) user.name = name;
+
+  if (profileImage) user.profileImage = profileImage;
+
+  if (bio) user.bio = bio;
+
+  if (password) {
+    const salt = await bcrypt.genSalt();
+    const encryptedPassword = await bcrypt.hash(password, salt);
+
+    user.password = encryptedPassword;
+  }
+
+  await user.save();
+
+  res.status(200).json(user);
+};
+
+module.exports = {
+  getCurrentUser,
+  login,
+  register,
+  update,
+};
+
+async function getUserData(name, email, password, profileImage, bio) {
+  const salt = await bcrypt.genSalt();
+  const encryptedPassword = await bcrypt.hash(password, salt);
+
+  return await User.create({
+    name,
+    email,
+    password: encryptedPassword,
+    profileImage,
+    bio,
+  });
+}
+function checkEmail(res, email) {
   if (email) {
     res.status(422).json({
       errors: ["E-mail já cadastrado. Por favor, utilize outro e-mail"],
@@ -46,7 +126,7 @@ function checkEmail(req, res, email) {
   return true;
 }
 
-function checkNewUser(req, res, newUser) {
+function checkNewUser(res, newUser) {
   if (!newUser) {
     res.status(422).json({
       errors: [
@@ -59,6 +139,13 @@ function checkNewUser(req, res, newUser) {
   return true;
 }
 
-module.exports = {
-  register,
-};
+function checkLoggedInUser(res, userEmail) {
+  if (!userEmail) {
+    res.status(404).json({
+      errors: ["Usuário não encontrado."],
+    });
+    return false;
+  }
+
+  return true;
+}
