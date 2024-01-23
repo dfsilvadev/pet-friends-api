@@ -19,9 +19,11 @@ const {
 } = require("../middlewares/userValidation");
 const { imageUpload } = require("../middlewares/imageUpload");
 
+router.get("/profile", authGuard, getCurrentUser);
+
 router.post("/register", validateUserCreation(), validate, register);
 router.post("/login", loginValidation(), validate, login);
-router.get("/profile", authGuard, getCurrentUser);
+
 router.put(
   "/",
   authGuard,
