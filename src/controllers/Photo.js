@@ -21,7 +21,7 @@ const insertPhoto = async (req, res) => {
 
   if (!newPhoto)
     return res.status(422).json({
-      errors: ["Erro ao inserir a foto. Por favor, tente mais tarde!"],
+      error: "Erro ao inserir a foto. Por favor, tente mais tarde!",
     });
 
   res.status(200).json(newPhoto);
@@ -37,12 +37,12 @@ const deletePhoto = async (req, res) => {
 
     if (!photo)
       return res.status(404).json({
-        errors: ["Foto não encontrada."],
+        error: "Foto não encontrada.",
       });
 
     if (!photo.userId.equals(reqUser._id))
       return res.status(422).json({
-        errors: ["Erro ao deletar a foto. Por favor, tente mais tarde!"],
+        error: "Erro ao deletar a foto. Por favor, tente mais tarde!",
       });
 
     await Photo.findByIdAndDelete(photo._id);
@@ -52,7 +52,7 @@ const deletePhoto = async (req, res) => {
       .json({ id: photo._id, message: "Foto excluída com sucesso!" });
   } catch {
     res.status(404).json({
-      errors: ["Foto não encontrada."],
+      error: "Foto não encontrada.",
     });
   }
 };
@@ -83,13 +83,13 @@ const getPhotoById = async (req, res) => {
 
     if (!photo)
       return res.status(404).json({
-        errors: ["Foto não encontrada."],
+        error: "Foto não encontrada.",
       });
 
     res.status(200).json(photo);
   } catch {
     res.status(404).json({
-      errors: ["Foto não encontrada."],
+      error: "Foto não encontrada.",
     });
   }
 };
@@ -103,12 +103,12 @@ const updatePhoto = async (req, res) => {
 
   if (!photo)
     return res.status(404).json({
-      errors: ["Foto não encontrada."],
+      error: "Foto não encontrada.",
     });
 
   if (!photo.userId.equals(reqUser.id))
     return res.status(422).json({
-      errors: ["Erro ao editar a foto. Por favor, tente mais tarde!"],
+      error: "Erro ao editar a foto. Por favor, tente mais tarde!",
     });
 
   if (title) {
@@ -129,7 +129,7 @@ const likePhoto = async (req, res) => {
 
   if (!photo)
     return res.status(404).json({
-      errors: ["Foto não encontrada."],
+      error: "Foto não encontrada.",
     });
 
   if (photo.likes.includes(reqUser._id)) {
@@ -161,7 +161,7 @@ const commentPhoto = async (req, res) => {
 
   if (!photo)
     return res.status(404).json({
-      errors: ["Foto não encontrada."],
+      error: "Foto não encontrada.",
     });
 
   const userComment = {

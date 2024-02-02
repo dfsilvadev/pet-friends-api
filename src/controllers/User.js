@@ -20,13 +20,14 @@ const register = async (req, res) => {
   const encryptedPassword = await bcrypt.hash(password, salt);
 
   const userEmail = await User.findOne({ email });
+
+  if (!checkEmail(res, userEmail)) return;
+
   const user = await User.create({
     name,
     email,
     password: encryptedPassword,
   });
-
-  if (!checkEmail(res, userEmail)) return;
 
   if (!checkNewUser(res, user)) return;
 
@@ -46,7 +47,7 @@ const login = async (req, res) => {
 
   if (!(await bcrypt.compare(password, user.password))) {
     res.status(422).json({
-      errors: ["Senha inválida."],
+      error: ["Senha inválida."],
     });
     return;
   }
@@ -106,12 +107,12 @@ const getUserById = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ errors: ["Usuário não encontrado!"] });
+      return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
     res.status(200).json(user);
   } catch {
-    return res.status(404).json({ errors: ["Usuário não encontrado!"] });
+    return res.status(404).json({ error: "Usuário não encontrado." });
   }
 };
 
@@ -126,7 +127,7 @@ module.exports = {
 function checkEmail(res, email) {
   if (email) {
     res.status(422).json({
-      errors: ["E-mail já cadastrado. Por favor, utilize outro e-mail"],
+      error: "E-mail já cadastrado. Por favor, utilize outro e-mail.",
     });
     return false;
   }
@@ -137,9 +138,8 @@ function checkEmail(res, email) {
 function checkNewUser(res, newUser) {
   if (!newUser) {
     res.status(422).json({
-      errors: [
+      error:
         "Erro ao criar o usuário. Por favor, tente novamente em alguns minutos.",
-      ],
     });
     return false;
   }
@@ -150,7 +150,7 @@ function checkNewUser(res, newUser) {
 function checkLoggedInUser(res, userEmail) {
   if (!userEmail) {
     res.status(404).json({
-      errors: ["Usuário não encontrado."],
+      error: "Usuário não encontrado.",
     });
     return false;
   }
