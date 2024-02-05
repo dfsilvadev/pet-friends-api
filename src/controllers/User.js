@@ -34,6 +34,8 @@ const register = async (req, res) => {
   res.status(201).json({
     _id: user._id,
     name: user.name,
+    email: user.email,
+    avatar: user.profileImage,
     token: generateToken(user._id),
   });
 };
@@ -47,7 +49,7 @@ const login = async (req, res) => {
 
   if (!(await bcrypt.compare(password, user.password))) {
     res.status(422).json({
-      error: ["Senha inválida."],
+      error: "Senha inválida.",
     });
     return;
   }
@@ -55,6 +57,7 @@ const login = async (req, res) => {
   res.status(201).json({
     _id: user._id,
     name: user.name,
+    email: user.email,
     profileImage: user.profileImage,
     token: generateToken(user._id),
   });
