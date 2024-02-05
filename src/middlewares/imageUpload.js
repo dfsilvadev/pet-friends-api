@@ -2,7 +2,7 @@ const multer = require("multer");
 const path = require("path");
 
 const imageStorage = multer.diskStorage({
-  destination: (req, file, callback) => {
+  destination: (req, _, callback) => {
     let folder = "";
 
     if (req.baseUrl.includes("users")) {
@@ -13,14 +13,14 @@ const imageStorage = multer.diskStorage({
 
     callback(null, `src/uploads/${folder}`);
   },
-  filename: (req, file, callback) => {
+  filename: (_, file, callback) => {
     callback(null, Date.now() + path.extname(file.originalname));
   },
 });
 
 const imageUpload = multer({
   storage: imageStorage,
-  fileFilter(res, file, callback) {
+  fileFilter(_, file, callback) {
     if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
       return callback(new Error("As imagens devem ser no formato png ou jpg."));
     }
