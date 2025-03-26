@@ -5,7 +5,7 @@ router.use("/api/users", require("./User"));
 router.use("/api/photos", require("./Photo"));
 
 router.get("/", (_, res) => {
-  res.send("API Working");
+  res.send("🔥 API Working!");
 });
 
 module.exports = router;

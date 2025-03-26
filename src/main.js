@@ -4,7 +4,7 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 
-const port = process.env.PORT;
+const PORT = process.env.PORT;
 
 const app = express();
 
@@ -37,6 +37,6 @@ require("./config/db.js");
 const router = require("./routes/Router.js");
 
 app.use(router);
-app.listen(port, () => {
-  console.log(`App rodando na porta: ${port}`);
+app.listen(PORT, () => {
+  console.log(`🔥 Server started at http://localhost:${PORT}`);
 });

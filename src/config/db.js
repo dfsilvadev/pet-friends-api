@@ -6,10 +6,10 @@ const dbPassword = process.env.MONGODB_PASS;
 const conn = async () => {
   try {
     const dbConn = await mongoose.connect(
-      `mongodb+srv://${dbUser}:${dbPassword}@cluster0.lmkeedy.mongodb.net/?retryWrites=true&w=majority`
+      `mongodb+srv://${dbUser}:${dbPassword}@cluster0.jgwdhk4.mongodb.net/`
     );
 
-    console.log("Conectou ao banco!");
+    console.log("🔥 Connected to the database.");
 
     return dbConn;
   } catch (err) {

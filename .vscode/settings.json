@@ -1,0 +1,9 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#F2668B",
+    "titleBar.inactiveBackground": "#F2668B",
+    "titleBar.activeForeground": "#011F26",
+    "titleBar.inactiveForeground": "#011F26"
+  },
+  "cSpell.words": ["colunas", "índice", "PSQL", "uuidv"]
+}
