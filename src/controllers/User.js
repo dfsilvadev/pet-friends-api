@@ -5,6 +5,12 @@ const { request } = require("express");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongoose").Types;
 
+const {
+  checkEmail,
+  checkNewUser,
+  checkLoggedInUser,
+} = require("./utils/checkUserData");
+
 const jwtSecret = process.env.JWT_SECRET;
 
 const generateToken = (id) => {
@@ -126,37 +132,3 @@ module.exports = {
   register,
   update,
 };
-
-function checkEmail(res, email) {
-  if (email) {
-    res.status(422).json({
-      error: "E-mail já cadastrado. Por favor, utilize outro e-mail.",
-    });
-    return false;
-  }
-
-  return true;
-}
-
-function checkNewUser(res, newUser) {
-  if (!newUser) {
-    res.status(422).json({
-      error:
-        "Erro ao criar o usuário. Por favor, tente novamente em alguns minutos.",
-    });
-    return false;
-  }
-
-  return true;
-}
-
-function checkLoggedInUser(res, userEmail) {
-  if (!userEmail) {
-    res.status(404).json({
-      error: "Usuário não encontrado.",
-    });
-    return false;
-  }
-
-  return true;
-}
